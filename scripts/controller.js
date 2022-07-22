@@ -28,6 +28,21 @@ class Controller {
         this.selectedElement = undefined;
         this.movedLast = "black";
         this.setImages();
+        this.toggleMove();
+    }
+
+    toggleMove(){
+
+        let moveColor = ""
+
+        if(this.movedLast === "black"){
+            moveColor = "white";
+        } else {
+            moveColor = "black"
+        }
+
+        $("#turn-display").html(moveColor);
+
     }
 
     //initializes the view with the image of each chess piece
@@ -306,7 +321,7 @@ class Controller {
         //ydirection - white pawns move up, black move down
         let ydirection = 0;
 
-        if(pieceColor === "black"){
+        if(pieceColor === "white"){
             ydirection = -1;
         } else {
             ydirection = 1;
@@ -359,9 +374,27 @@ class Controller {
         $(".selected").removeClass("selected");
     }
 
-    movePiece(event) {
+    handleClick(event) {
 
-        console.log("MOVING PIECE");
+        //this refers to the controller object and not the DOM element since the object was bound to this method
+
+        if(this.pieceSelected === false){
+
+            this.selectPiece(event);
+
+            return;
+
+        } else if(event.currentTarget.classList.contains("valid")) {
+
+            this.movePiece(event);
+
+        } 
+
+        //either a piece was moved or and invalid target was selected, so we'll reset the selection
+        this.resetTargets();
+    }
+
+    movePiece(event) {
     
         //get selected/source coordinates, piece, and element
         const sourceCoordinates = this.getSelectedCoordinates();
@@ -391,12 +424,12 @@ class Controller {
         sourcePiece.setMoved(true);
 
         this.movedLast = sourcePiece.color;
+
+        this.toggleMove();
     
     }
 
     selectPiece(event){
-
-        console.log("SELECTING PIECE");
     
         const xPos = Number(event.currentTarget.getAttribute("xpos"));
         const yPos = Number(event.currentTarget.getAttribute("ypos"));

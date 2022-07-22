@@ -5,9 +5,6 @@ import {ChessPiece} from "./piece.js";
 //*** GAME BEGINS ***//
 $(document).ready(()=>{
 
-    //initializes event handlers
-    initialize();
-
     //Model - The model will simply be the set of Chess Pieces which hold their own state
     const pieces = createPieces();
 
@@ -17,32 +14,26 @@ $(document).ready(()=>{
     //Controller - The controller is responsible for manipulating the View and
     const controller = new Controller(pieces, rows);
 
+    //initializes event handlers
+    initializeHandlers(controller);
+
     
     //initializes event handlers
-    function initialize() {
+    function initializeHandlers(controller) {
 
-        $("button").click(()=>{
+        $("#reset-btn").click(()=>{
             location.reload();
         });
 
-        $(".col").click(function(event) {
+        $("#flip-btn").click(()=>{
 
-            if(controller.pieceSelected === false){
-
-                controller.selectPiece(event);
-
-                return;
-
-            } else if(event.currentTarget.classList.contains("valid")) {
-
-                controller.movePiece(event);
-
-            } 
-
-            //either a piece was moved or and invalid target was selected, so we'll reset the selection
-            controller.resetTargets();
+            $("img").toggleClass("rotate");
+            $(".board").toggleClass("rotate");
 
         });
+
+
+        $(".col").click(controller.handleClick.bind(controller));
 
     }
 
@@ -55,7 +46,7 @@ $(document).ready(()=>{
             for(let j = 0; j < 8; j++){
             
                 const type = boardSetup.rows[i][j];
-                const color = "white";
+                const color = "black";
                 const xPos = j;
                 const yPos = i;
             
@@ -69,7 +60,7 @@ $(document).ready(()=>{
             for(let j = 7; j > -1; j--){
             
                 const type = boardSetup.rows[Math.abs(i-7)%6][j];
-                const color = "black";
+                const color = "white";
                 const yPos = i;
                 const xPos = j;
             

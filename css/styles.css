@@ -2,12 +2,16 @@ html, body {
     height: 100%;
 }
 
-
 .board {
     width: 800px;
     height: 800px;
     border: 3px solid;
     margin: 0 auto;
+}
+
+.rotate {
+    -webkit-transform: rotateX(180deg);
+            transform: rotateX(180deg);
 }
 
 .row {
@@ -37,7 +41,42 @@ html, body {
     opacity: 0.8;
 }
 
+/* style for div that holds the selected piece */
 .selected {
     background-color: orange;
     opacity: 0.9;
+}
+
+#reset-btn {
+    background-color: orange;
+    border-radius: 10px;
+    width: 130px;
+    height: 40px;
+    display: relative;
+    margin: 20px 0px 0px 0px;
+
+}
+
+#flip-btn {
+    background-color: lightgreen;
+    border-radius: 10px;
+    width: 130px;
+    height: 40px;
+    display: relative;
+    margin: 20px 0px 0px 0px;
+
+}
+
+#info {
+    width: 300px;
+    height: 300px;
+    border: 2px solid;
+    border-radius: 5%;
+    position: absolute;
+    text-align: center;
+    font-family: sans-serif;  
+} 
+
+#turn-display {
+    margin-top: 30px;
 }
