@@ -29,6 +29,13 @@ class Controller {
         this.movedLast = "black";
         this.setImages();
         this.toggleMove();
+        this.initializeCoverage();
+    }
+
+    initializeCoverage(){
+        this.pieces.forEach((piece)=>{
+            piece.setCoverage(this.getValidMoves(piece.xPos, piece.yPos, piece.type, piece.color));
+        });
     }
 
     toggleMove(){
@@ -238,15 +245,42 @@ class Controller {
 
     getValidKingMoves(xPos, yPos, pieceColor){
 
+        //Valid directional moves - aggregate of rook and bishop moves
         let validMoves = this.getCrossCoordinates(xPos, yPos, pieceColor).concat(this.getDiagonalCoordinates(xPos, yPos, pieceColor));
 
+        //filter bishop and rook moves - king can only move 1 space
         validMoves = validMoves.filter((coordinate)=>{
             if(Math.abs(coordinate.xPos - xPos) <= 1 && Math.abs(coordinate.yPos - yPos) <= 1){
                 return true;
             }
          });
 
-         //TODO: remove moves that would put king in check
+        //filter out moves that would put the king in an attack by the opposing color - this is not allowed
+        const opposingPieces = this.pieces.filter((piece)=>{
+            return piece.color !== pieceColor;
+        });
+
+        //determine all areas covered by opponent
+        let coverages = [];
+        for(let i = 0; i < opposingPieces.length; i++){
+
+            let coverage = opposingPieces[i].getCoverage();
+
+            for(let j = 0; j < coverage.length; j++){
+                coverages.push(coverage[j]);
+            }
+
+        }
+
+        //filter out each incompatible move
+        validMoves = validMoves.filter((coordinate)=>{
+            let found = coverages.find((coord)=>{
+                return coord.xPos === coordinate.xPos && coord.yPos === coordinate.yPos;
+            });
+
+            return(!found);
+
+        });
 
          return validMoves;
     }
@@ -377,6 +411,7 @@ class Controller {
         //update moved piece's position
         sourcePiece.setPosition(targetCoordinates.xPos, targetCoordinates.yPos);
         sourcePiece.setMoved(true);
+        sourcePiece.setCoverage(this.getValidMoves(sourcePiece.xPos, sourcePiece.yPos, sourcePiece.type, sourcePiece.color));
 
         this.movedLast = sourcePiece.color;
 

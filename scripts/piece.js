@@ -23,7 +23,16 @@ class ChessPiece {
         this.yPos = yPos;
         this.image = images[image];
         this.hasMoved = false;
+        this.coverage = [];
         console.log("Piece created:" + this.color + this.type + " at (" + this.xPos + " , " + this.yPos + ")");
+    }
+
+    setCoverage(coverage){
+        this.coverage = coverage;
+    }
+
+    getCoverage(){
+        return this.coverage;
     }
 
     getXPosition(){
