@@ -9,7 +9,7 @@ const boardSetup = {
 }
 
 //stores coordinate object into an array
-function storeCoordinates(xPos, yPos, coordinates){
+function storeCoordinate(xPos, yPos, coordinates){
     coordinates.push(
         {xPos: xPos, yPos: yPos}
     );
@@ -119,155 +119,108 @@ class Controller {
 
     }
 
+    //stores a coordinate if it's a valid position to move toward
+    handleCoordinateStore(xPos, yPos, pieceColor, moves){
+        let store = false;
+        let checkNext = true;
+
+        if(this.isCollision(xPos, yPos)){
+
+            if(this.getPiece(xPos, yPos).color !== pieceColor){
+                store = true;
+            }
+            //we'll not store any more positions
+            checkNext = false;
+
+        } else {
+            store = true;
+        }
+
+        if(store){
+            storeCoordinate(xPos, yPos, moves);
+        }
+
+        return checkNext;
+
+    }
+
     //valid cross coordinates (vertical and horizontal movements, queen, king, rook)
     getCrossCoordinates(xPos, yPos, pieceColor){
 
-        const moves = [];
+        const validMoves = [];
 
-        //verticals
+        //store valid vertical moves
         for(let j = yPos + 1; j < 8; j++){
 
-            if(this.isCollision(xPos, j)){
-                //determine if collision is OK
-
-                if(this.getPiece(xPos, j).color !== pieceColor){
-                    //do not store coordinates
-                    storeCoordinates(xPos, j, moves);
-                }
+            if(!this.handleCoordinateStore(xPos, j, pieceColor, validMoves)){
                 break;
-
-            } else {
-                storeCoordinates(xPos, j, moves);
             }
         }
-
         for(let j = yPos - 1; j > -1; j--){
 
-            if(this.isCollision(xPos, j)){
-                //determine if collision is OK
-
-                if(this.getPiece(xPos, j).color !== pieceColor){
-                    //do not store coordinates
-                    storeCoordinates(xPos, j, moves);
-                }
+            if(!this.handleCoordinateStore(xPos, j, pieceColor, validMoves)){
                 break;
-
-            } else {
-                storeCoordinates(xPos, j, moves);
             }
         }
 
-        //horizontals
+        //store valid horizontal moves
         for(let i = xPos + 1; i < 8; i++){
 
-            
-            if(this.isCollision(i, yPos)){
-                //determine if collision is OK
-
-                if(this.getPiece(i, yPos).color !== pieceColor){
-                    //do not store coordinates
-                    storeCoordinates(i, yPos, moves);
-                }
+            if(!this.handleCoordinateStore(i, yPos, pieceColor, validMoves)){
                 break;
-
-            } else {
-                storeCoordinates(i, yPos, moves);
             }
-
         }      
         for(let i = xPos - 1; i > -1; i--){
          
-            if(this.isCollision(i, yPos)){
-                //determine if collision is OK
-
-                if(this.getPiece(i, yPos).color !== pieceColor){
-                    //do not store coordinates
-                    storeCoordinates(i, yPos, moves);
-                }
+            if(!this.handleCoordinateStore(i, yPos, pieceColor, validMoves)){
                 break;
-
-            } else {
-                storeCoordinates(i, yPos, moves);
             }
-
 
         }
 
-        return moves;
+        return validMoves;
 
     }
 
     //valid diagonal coordinates (queen, king, bishop)
     getDiagonalCoordinates(xPos, yPos, pieceColor){
 
-        const moves = [];
+        const validMoves = [];
+
 
         for(let i = xPos + 1, j = yPos + 1; i < 8, j < 8; i++, j++){
 
-            if(this.isCollision(i, j)){
-                //determine if collision is OK
-
-                if(this.getPiece(i, j).color !== pieceColor){
-                    //do not store coordinates
-                    storeCoordinates(i,j, moves);
-                }
+            if(!this.handleCoordinateStore(i, j, pieceColor, validMoves)){
                 break;
-
-            } else {
-                storeCoordinates(i, j, moves);
             }
 
         }
 
         for(let i = xPos - 1, j = yPos - 1; i > -1, j > -1; i--, j--){
 
-            if(this.isCollision(i, j)){
-                //determine if collision is OK
-
-                if(this.getPiece(i, j).color !== pieceColor){
-                    //do not store coordinates
-                    storeCoordinates(i,j, moves);
-                }
+            if(!this.handleCoordinateStore(i, j, pieceColor, validMoves)){
                 break;
-
-            } else {
-                storeCoordinates(i, j, moves);
             }
+
         }
 
         for(let i = xPos + 1, j = yPos - 1; i < 8, j > -1; i++, j--){
 
-            if(this.isCollision(i, j)){
-                //determine if collision is OK
-
-                if(this.getPiece(i, j).color !== pieceColor){
-                    //do not store coordinates
-                    storeCoordinates(i,j, moves);
-                }
+            if(!this.handleCoordinateStore(i, j, pieceColor, validMoves)){
                 break;
-
-            } else {
-                storeCoordinates(i, j, moves);
             }
+
         }
 
         for(let i = xPos - 1, j = yPos + 1; i > -1, j < 8; i--, j++){
 
-            if(this.isCollision(i, j)){
-                //determine if collision is OK
-
-                if(this.getPiece(i, j).color !== pieceColor){
-                    //do not store coordinates
-                    storeCoordinates(i,j, moves);
-                }
+            if(!this.handleCoordinateStore(i, j, pieceColor, validMoves)){
                 break;
-
-            } else {
-                storeCoordinates(i, j, moves);
             }
+
         }
 
-        return moves;
+        return validMoves;
     }
 
     //determines if a move would result in a collision
@@ -293,6 +246,8 @@ class Controller {
             }
          });
 
+         //TODO: remove moves that would put king in check
+
          return validMoves;
     }
 
@@ -302,18 +257,18 @@ class Controller {
 
     getValidKnightMoves(xPos, yPos, pieceColor){
 
-        const moves = [];
+        const validMoves = [];
 
-        storeCoordinates(xPos + 1, yPos + 2, moves);
-        storeCoordinates(xPos - 1, yPos - 2, moves);
-        storeCoordinates(xPos + 1, yPos - 2, moves);
-        storeCoordinates(xPos - 1, yPos + 2, moves);
-        storeCoordinates(xPos + 2, yPos + 1, moves);
-        storeCoordinates(xPos - 2, yPos - 1, moves);
-        storeCoordinates(xPos + 2, yPos - 1, moves);
-        storeCoordinates(xPos - 2, yPos + 1, moves);
+        this.handleCoordinateStore(xPos + 1, yPos + 2, pieceColor, validMoves);
+        this.handleCoordinateStore(xPos - 1, yPos - 2, pieceColor, validMoves);
+        this.handleCoordinateStore(xPos + 1, yPos - 2, pieceColor, validMoves);
+        this.handleCoordinateStore(xPos - 1, yPos + 2, pieceColor, validMoves);
+        this.handleCoordinateStore(xPos + 2, yPos + 1, pieceColor, validMoves);
+        this.handleCoordinateStore(xPos - 2, yPos - 1, pieceColor, validMoves);
+        this.handleCoordinateStore(xPos + 2, yPos - 1, pieceColor, validMoves);
+        this.handleCoordinateStore(xPos - 2, yPos + 1, pieceColor, validMoves);
 
-        return moves;
+        return validMoves;
     }
 
     getValidPawnMoves(xPos, yPos, pieceColor){
@@ -332,11 +287,11 @@ class Controller {
         let yCoord = ydirection + yPos;
 
         if(!this.isCollision(xPos, yCoord)){
-            storeCoordinates(xPos, yCoord, moves);
+            storeCoordinate(xPos, yCoord, moves);
 
             if(!this.getPiece(xPos, yPos).hasMoved) {
                 if(!this.isCollision(xPos, yCoord + ydirection)){
-                    storeCoordinates(xPos, yCoord + ydirection, moves);
+                    storeCoordinate(xPos, yCoord + ydirection, moves);
                 }
             }
 
@@ -344,13 +299,13 @@ class Controller {
 
         if(this.isCollision(xPos + 1, yCoord)){
             if(this.getPiece(xPos + 1, yCoord).color !== pieceColor) {
-                storeCoordinates(xPos + 1, yCoord, moves);
+                storeCoordinate(xPos + 1, yCoord, moves);
             }
         }
 
         if(this.isCollision(xPos - 1, yCoord)){
             if(this.getPiece(xPos - 1, yCoord).color !== pieceColor) {
-                storeCoordinates(xPos - 1, yCoord, moves);
+                storeCoordinate(xPos - 1, yCoord, moves);
             }
         }
 
@@ -463,4 +418,4 @@ class Controller {
 }
 
 
-export{Controller, boardSetup, storeCoordinates};
+export{Controller, boardSetup, storeCoordinate as storeCoordinates};
